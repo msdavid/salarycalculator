@@ -1,0 +1,273 @@
+/* timesheet table */
+
+td.restday.worked {
+    background-color: #c9e2fa;
+}
+
+td.restday.notworked {
+    background-color: #ececec;
+}
+
+td.halfday.worked {
+    background-color: #e3f2fd;
+}
+
+td.halfday.notworked {
+    background-color: #ececec;
+}
+
+td.pholiday.worked {
+    background-color: #fed7c3;
+}
+
+td.pholiday.notworked {
+    background-color: #fffcd8;
+}
+
+td.workday.worked {
+    background-color: white;
+}
+
+td.workday.notworked {
+    background-color: #ececec;
+}
+
+td.required::after {
+    content: "◄";
+    color: #ff2c2c;
+    font-size: 70%;
+    padding-left: 5px;
+    text-align: right;
+}
+
+td.required {
+    font-size: 100%;
+}
+
+td.notworked {
+    background-color: #f4f4f4;
+}
+
+td.notworked::after {
+    content: "";
+    pointer-events: none;
+}
+
+td.noemployment {
+    background-color: #d0cfcf;
+}
+
+td.noemployment .htAutocompleteArrow {
+    color: #d0cfcf
+}
+
+td.error {
+    background-color: #ff9f9f;
+}
+
+.exportbtn {
+    /* float: right; */
+    font-size: 60%;
+    /* margin-bottom: 10px; */
+}
+
+
+/* config table */
+
+.config * {
+    border: 0 !important;
+}
+
+
+/*  */
+
+*.centered {
+    text-align: center;
+}
+
+
+/* handsontable defaults */
+
+*.colHeader {
+    color: #464646;
+}
+
+td.htAutocomplete {
+    color: #3d3d3d;
+}
+
+.handsontable .htAutocompleteArrow {
+    color: #64b5f6;
+}
+
+.myblocker {
+    background-color: #ff2c2c;
+}
+
+.confedit {
+    font-size: x-small;
+    margin-left: 10px;
+    color: #5d5d5d;
+    border-width: 1px;
+    border-color: #868686;
+    text-decoration: none;
+    z-index: 99999;
+}
+
+
+/* ################ dropdown ##################3*/
+
+.dropbtn {
+    background-color: #04AA6D;
+    color: white;
+    padding: 16px;
+    /* font-size: 16px; */
+    border: none;
+}
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f1f1f1;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+}
+
+.dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+}
+
+.dropdown-content a:hover {
+    background-color: #ddd;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+.dropdown:hover .dropbtn {
+    background-color: #3e8e41;
+}
+
+td {
+    font: 14px sans-serif;
+}
+
+body.waiting * {
+    cursor: progress;
+}
+
+.required.config {
+    font-size: 130%;
+}
+
+
+/* spinner */
+
+.title {
+    margin-top: 2px;
+    margin-right: 10px;
+    vertical-align: top;
+    display: inline-block;
+}
+
+.spinner {
+    border: 2px solid #ededed;
+    /* Light grey */
+    border-top: 3px solid #3498db;
+    /* Blue */
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    animation: spin 0.6s linear infinite;
+    display: none;
+    vertical-align: middle;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.results {
+    font-size: 130%;
+    color: #64b5f6;
+}
+
+red {
+    color: red;
+}
+
+blue {
+    color: blue;
+}
+
+green {
+    color: green;
+}
+
+gray {
+    color: gray;
+}
+
+yellow {
+    color: yellow;
+}
+
+big {
+    font-size: 120%;
+}
+
+small {
+    font-size: 80%
+}
+
+xbig {
+    font-size: 150%;
+}
+
+xsmall {
+    font-size: 60%;
+}
+
+highlight {
+    background-color: #ffa07aac;
+}
+
+.hastooltip::after {
+    content: "\e0cb";
+    font-size: 100%;
+    text-align: right;
+    font-family: 'Material Icons'
+}
+
+.clickme::after {
+    content: "\e0cb";
+    font-size: 100%;
+    text-align: right;
+    color: #353535;
+    padding-left: 4px;
+    font-family: 'Material Icons';
+}
+
+.clickme-red::after {
+    content: "\e153";
+    font-size: 110%;
+    text-align: right;
+    color: #fa2323;
+    padding-left: 4px;
+    font-family: 'Material Icons';
+}

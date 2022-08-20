@@ -1,0 +1,26 @@
+pholidays = {
+    //2022
+    "2022-01-01": { "Name": "New Year's Day" },
+    "2022-02-01": { "Name": "Chinese New Year Day 1" },
+    "2022-02-02": { "Name": "Chinese New Year Day 2" },
+    "2022-04-15": { "Name": "Good Friday" },
+    "2022-05-02": { "Name": "Labour Day" },
+    "2022-05-03": { "Name": "Hari Raya Puasa" },
+    "2022-05-16": { "Name": "Vesak Day" },
+    "2022-07-11": { "Name": "Hari Raya Haji" },
+    "2022-08-09": { "Name": "National Day" },
+    "2022-10-24": { "Name": "Deepavali" },
+    "2022-12-26": { "Name": "Christmas Day" },
+    // 2023
+    "2023-01-02": { "Name": "New Year's Day" },
+    "2023-01-23": { "Name": "Chinese New Year" },
+    "2023-01-24": { "Name": "Chinese New Year" },
+    "2023-04-07": { "Name": "Good Friday" },
+    "2023-04-22": { "Name": "Hari Raya Puasa" },
+    "2023-05-01": { "Name": "Labour Day" },
+    "2023-06-03": { "Name": "Vesak Day" },
+    "2023-06-29": { "Name": "Hari Raya Haji" },
+    "2023-08-09": { "Name": "National Day" },
+    "2023-11-13": { "Name": "Deepavali" },
+    "2023-12-25": { "Name": "Christmas Day" },
+}
