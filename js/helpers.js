@@ -148,7 +148,7 @@ function isHoliday(year, month, day) {
 }
 
 function addReasonDropdown(rowIndex) {
-    var item = timesheet.getCell(rowIndex, workdayCol);
+    var item = timesheet.getCell(rowIndex, payableCol);
     if (item.boxattached) return;
     if (item && 'reasonbox' in item) return;
     var html = $('#reasonpopup')[0].outerHTML;
@@ -184,16 +184,25 @@ function cellAddTooltip(row, col, htmlContent, table = timesheet) {
 
 var zoom = 1;
 var zoomStep = 0.05;
+var translate = 10;
+var transStep = 10;
 
 $('#zoomIn').on("click", function() {
     zoom += zoomStep;
+    translate += transStep;
     $("#zoomtext").css({
-        'transform': `scale(${zoom})`
+        'transform': `scale(${zoom}) translateY(${translate}px)`
+
     });
+    // $("#zoomtext").css({
+    //     'transform': 'translateY(10px)'
+    // });
+
 });
 $('#zoomOut').on("click", function() {
     if (zoom > zoomStep) {
         zoom -= zoomStep;
+        translate -= transStep;
         $("#zoomtext").css({
             'transform': `scale(${zoom})`,
         });
@@ -201,6 +210,7 @@ $('#zoomOut').on("click", function() {
 });
 $('#zoomRestore').on("click", function() {
     zoom = 1;
+    translate = 1;
     $("#zoomtext").css({
         'transform': '',
     });
@@ -223,29 +233,33 @@ function colGetData(col, obj = timesheet) {
     return result;
 }
 
+function colSum(col) {
+    return arrSum(colGetData(col));
+}
+
 var confPop = null;
 
 function createSelects(year = currentYear,
     month = currentMonth, resday = "Sun", halfday = "Sat") {
     var years = _.range(year - 5, year + 3);
     years.forEach(item => {
-        var selected = ((item === year) ? 'selected' : '');
-        $("#yearselect").append(`<option ${selected} value="${item}">${item}</option>\n`);
+        var selected = ((parseInt(item) === year) ? 'selected' : '');
+        $(".yearselect").append(`<option ${selected} value="${item}">${item}</option>\n`);
     });
     _.keys(monthsOfTheYear).forEach(item => {
-        var selected = ((item === month) ? 'selected' : '');
+        var selected = ((parseInt(item) === month) ? 'selected' : '');
         var option = monthsOfTheYear[item];
-        $("#monthselect").append(`<option ${selected} value="${item}">${option}</option>\n`);
+        $(".monthselect").append(`<option ${selected} value="${item}">${option}</option>\n`);
     });
     _.keys(daysOfTheWeek).forEach(item => {
         var selected = ((item === resday) ? 'selected' : '');
         var option = daysOfTheWeek[item];
-        $("#restdayselect").append(`<option ${selected} value="${item}">${option}</option>\n`);
+        $(".restdayselect").append(`<option ${selected} value="${item}">${option}</option>\n`);
     });
     _.keys(daysOfTheWeek).forEach(item => {
         var selected = ((item === halfday) ? 'selected' : '');
         var option = daysOfTheWeek[item];
-        $("#halfdayselect").append(`<option ${selected} value="${item}">${option}</option>\n`);
+        $(".halfdayselect").append(`<option ${selected} value="${item}">${option}</option>\n`);
     });
 
     var dayTypeEditHtml = $('#confpop')[0].outerHTML;
@@ -258,11 +272,6 @@ function createSelects(year = currentYear,
         trigger: 'click',
     });
 
-}
+    $("#monthyear").text(`${monthsOfTheYear[currentMonth]}, ${currentYear}`);
 
-$('.string').each(function(index) {
-    var str = $(this)[0].innerHTML;
-    if (str in strings) {
-        str = $(this)[0].innerHTML = strings[str];
-    }
-})
+}

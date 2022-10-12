@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="X-UA-Compatible" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Salary Calculator (Beta)</title>
     <script src="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.js"></script>
@@ -20,82 +20,214 @@
 </head>
 
 <body>
+
+
     <div class="container">
+        <div class="row" style="margin-top:10px">
+            <div class="col p-0">
+                <h5 style="font-weight:bold">Salary Calculator <span style="font-size: 60%; color:darkgray;font-weight:bold">v0.01</span></h5>
+            </div>
+        </div>
         <div id="zoomtext">
-            <!-- <nav class="navbar bg-light">
-                <div class="container-fluid">
-                    <span class="navbar-brand mb-0 h2">Salary Calculator v0.2.8</span>
-                </div>
-            </nav> -->
-            <h5 style="margin-top: 20px;" class="string">Compensation</h5>
-            <div id="config" class="config hot"></div>
-            <div style="display:inline-block; margin-bottom:100px">
-                <div style="margin-top: 20px;  display: flex; justify-content: space-between;">
-                    <div>
-                        <h5 class="title" class="timesheet">Time Sheet</h5>
-                        <div class="spinner"></div>
-                    </div>
-                    <div style="display: table">
-                        <div style="display: table-row">
-                            <div id="monthyear" style="display: table-cell">Aug, 2022</div>
-                            <div style="display: table-cell;"><button class="confedit">change</button></div>
+            <div class="row" style="margin-top: 20px;">
+                <div class="col-8 buttonsbar p-0">
+                    <div class="row">
+                        <div class="col-3  titlespinner">
+                            <div class="col">
+                                <div class="title" class="timesheet">Time Sheet</div>
+                                <!-- <div class="spinner"></div> -->
+                            </div>
+                        </div>
+                        <div class="col datebar">
+                            <div style="display: table-row" class="col border-red">
+                                <div id="monthyear" style="display: table-cell"></div>
+                                <div style="display: table-cell;"><button class="confedit">change</button></div>
+                            </div>
+                        </div>
+                        <div class="col-auto p-0 buttons" style="margin-right:18px">
+                            <div class="col p-0" style="margin-bottom:5px">
+                                <button id="zoomOut" class="btn btn-sm btn-secondary exportbtn"><i class="bi bi-zoom-out"></i></button>
+                                <button id="zoomRestore" class="btn btn-sm btn-secondary exportbtn">-</button>
+                                <button id="zoomIn" class="btn btn-sm btn-secondary exportbtn"><i class="bi bi-zoom-in"></i></button>
+                                <button id="loadfile" onclick="loadTimesheet()" class="btn btn-sm btn-secondary exportbtn">Load</button>
+                                <button id="savefile" class="btn btn-sm btn-secondary exportbtn" data-bs-toggle="modal" data-bs-target="#savemodal">Save</button>
+                                <button id="export" class="btn btn-sm btn-secondary exportbtn" data-bs-toggle="modal" data-bs-target="#exportmodal">Export Data</button>
+                            </div>
                         </div>
                     </div>
-                    <div>
-                        <button id="zoomOut" class="btn btn-sm btn-secondary exportbtn"><i class="bi bi-zoom-out"></i></button>
-                        <button id="zoomRestore" class="btn btn-sm btn-secondary exportbtn">-</button>
-                        <button id="zoomIn" class="btn btn-sm btn-secondary exportbtn"><i class="bi bi-zoom-in"></i></button>
-                        <button id="loadfile" onclick="loadTimesheet()" class="btn btn-sm btn-secondary exportbtn">Load</button>
-                        <button id="savefile" class="btn btn-sm btn-secondary exportbtn" data-bs-toggle="modal" data-bs-target="#savemodal">Save</button>
-                        <button id="export" class="btn btn-sm btn-secondary exportbtn" data-bs-toggle="modal" data-bs-target="#exportmodal">Export Data</button>
+                </div>
+                <div class="col emtyptycell "></div>
+            </div>
+            <div class="row">
+                <div class="col-8 p-0 timesheet ">
+                    <div id="timesheet" class="hot"></div>
+                </div>
+                <div class="col p-0 resultbox ">
+                    <div class="border border-2 rounded border-secondary" style="width:300px; height:100%; border-radius: 45px; padding-left:10px; padding-right: 10px">
+                        <div class="row">
+                            <div class="col">
+                                <h6><b>Salary Information</b></h6>
+                            </div>
+                        </div>
+                        <div class="row" style="margin-top:10px">
+                            <div class="col-6"><span class="align-bottom">Monthly salary</span></div>
+                            <div class="col"><input id="monthlysalary" type="text" placeholder="SGD" style="width: 110px;" onchange="updateRates()"></div>
+                        </div>
+                        <div class="row" style="margin-top:5px">
+                            <div class="col-6"><span class="align-bottom">Days per week</span></div>
+                            <div class="col"><input id="daysperweek" type="text" value="5.5" style="width: 110px" onchange="updateRates()"></div>
+                        </div>
+                        <div class="row" style="margin-top:10px">
+                            <div class="col">
+                                <span style="font-size: 110%"><b>Rates</b></span>
+                            </div>
+                        </div>
+                        <div class="row" style="margin-top:5px">
+                            <div class="col-8">Daily</div>
+                            <div class="col">
+                                <div id="dailyrate" class="comp-normal-number">0.00</div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-8">Hourly</div>
+                            <div class="col">
+                                <div id="hourlyrate" class="comp-normal-number">0.00</div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-8">Overtime (per hour)</div>
+                            <div class="col">
+                                <div id="overtimerate" class="comp-normal-number">0.00</div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-8">Restday</div>
+                            <div class="col">
+                                <div id="restdayrate" class="comp-normal-number">0.00</div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-8">Public Holiday (per day)</div>
+                            <div class="col">
+                                <div id="publicholidayrate" class="comp-normal-number">0.00</div>
+                            </div>
+                        </div>
+                        <div class="row" style="margin-top:10px">
+                            <div class="col">
+                                <span style="font-size: 110%"><b>Pay</b></span>
+                            </div>
+                        </div>
+                        <div class="row" style="margin-top:5px">
+                            <div class="col-6">Month</div>
+                            <div class="col"> </div>
+                            <div class="col">
+                                <div id="monthtype" class="comp-normal-number">Full</div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-6">Basic Salray</div>
+                            <div class="col"> </div>
+                            <div class="col">
+                                <div id="basicsalary" class="comp-normal-number">0.00</div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-6">Overtime</div>
+                            <div id="overtimecount" class="col"> 0h </div>
+                            <div class="col">
+                                <div id="overtimehrs" class="comp-normal-number">0.00</div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-6">Rest Days</div>
+                            <div id="restdayscount" class="col"> 0d </div>
+                            <div class="col">
+                                <div id="restdays" class="comp-normal-number">0.00</div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-6">Public Holidays</div>
+                            <div id="publicholidayscount" class="col"> 0d </div>
+                            <div class="col">
+                                <div id="pholidays" class="comp-normal-number">0.00</div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-6">Non-paid Leave</div>
+                            <div id="nonpayleavecount" class="col"> 0d </div>
+                            <div class="col">
+                                <div id="nonpaidleave" class="comp-normal-number">-0.00</div>
+                            </div>
+                        </div>
+                        <div class="mcrow row" style="display: none">
+                            <div class="col-6">MC</div>
+                            <div id="mccount" class="col"> 0d </div>
+                            <div class="col">
+                                <div id="mc" class="comp-normal-number">-0.00</div>
+                            </div>
+                        </div>
+                        <div class="row" style="margin-top:35px">
+                            <div class="col-6">
+                                <h5>Total</h5>
+                            </div>
+                            <div class="col"></div>
+                            <div class="col">
+                                <div id="restdays">
+                                    <h5>0.00</h5>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div id="timesheet" class="hot"></div>
             </div>
         </div>
     </div>
-    <!-- **************** popups ****************** -->
+    <!-- **************** display: none ****************** -->
+    <div class="spinnercontainer">
+        <div class="spinner"></div>
+    </div>
     <div id="reasonpopup" style="display:none; height:300;">
         <p>half_day_reason_explanation</p>
         <div style="display: flex; justify-content: space-between;">
-            <select onchange="setWorkday(rownumber, this)">
+            <select onchange="setPayable(rownumber, this)">
                 <option value="notset"></option>
                 <option value="noworkavailable">No work available</option>
                 <option value="unpaidleave">Unpaid leave</option>
             </select>
         </div>
     </div>
+
     <div class="tooltip" style="display:none"></div>
-    <div style="display: none">
-        <div id="confpop" style="display:table; height:300; width: 200px;">
-            <p class="string">daytype_edit_explanation</p>
+
+    <div style="display: none;">
+        <div id="confpop" style="display:table; height:300; width: 220px;">
             <div>
                 <div style="display: table-row;">
-                    <div style="display: table-cell;"> Year </div>
+                    <div style="display: table-cell;font-size:small"> Year </div>
                     <div style="display: table-cell;">
-                        <select id="yearselect" style="width:120px; margin-left:5px">
+                        <select class="yearselect" style="width:120px; margin-left:15px">
                     </select>
                     </div>
                 </div>
                 <div style="display: table-row">
-                    <div style="display: table-cell;"> Month </div>
+                    <div style="display: table-cell;font-size:small"> Month </div>
                     <div style="display: table-cell;">
-                        <select id="monthselect" style="width:120px; margin-left:5px">
+                        <select class="monthselect" style="width:120px; margin-left:15px">
 
                     </select>
                     </div>
                 </div>
                 <div style="display: table-row">
-                    <div style="display: table-cell; margin-left:10px"> Rest Day </div>
+                    <div style="display: table-cell; margin-left:10px; font-size:small"> Rest Day </div>
                     <div style="display: table-cell;">
-                        <select id="restdayselect" style="width:120px; margin-left:5px; background-color: #c9e2fa;">
+                        <select class="restdayselect" style="width:120px; margin-left:15px; background-color: #c9e2fa;">
                     </select>
                     </div>
                 </div>
                 <div style="display: table-row">
-                    <div style="display: table-cell;"> Half Day </div>
+                    <div style="display: table-cell;font-size:small"> Half Day </div>
                     <div style="display: table-cell;">
-                        <select id="halfdayselect" style="width:120px; margin-left:5px; background-color: #e3f2fd;">
+                        <select class="halfdayselect" style="width:120px; margin-left:15px; background-color: #e3f2fd;">
                     </select>
                     </div>
                 </div>
@@ -142,7 +274,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" onclick="saveTimesheet($( '#savefilename').val())" class="btn btn-primary" data-bs-dismiss="modal">Save</button>
+                    <button type="button" onclick="saveTimesheet($('#savefilename').val())" class="btn btn-primary" data-bs-dismiss="modal">Save</button>
                 </div>
             </div>
         </div>
@@ -155,7 +287,6 @@
     <script src="js/formulas.js"></script>
     <script src="js/helpers.js"></script>
     <script src="js/main.js"></script>
-    <script src="js/tables.js"></script>
 </body>
 
 </html>

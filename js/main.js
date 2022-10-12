@@ -1,5 +1,148 @@
 rowChangeTracker = [];
 
+function suffixRenderer(instance, td, row, column, prop, value, cellProperties) {
+    Handsontable.renderers.NumericRenderer.apply(this, arguments);
+    if ('zerosuffix' in cellProperties) {
+        zerosuffix = cellProperties.zerosuffix;
+    } else { zerosuffix = '' };
+
+    if (value !== undefined && value !== '') {
+        if (value == 0 || Number.isNaN(value) || !value) {
+            td.innerHTML = cellProperties.zero + zerosuffix;
+            return;
+        }
+        if ('fraction' in cellProperties) {
+            if (value == 0.6667) {
+                td.innerHTML = '2/3' + cellProperties.suffix;
+                return;
+            }
+            if (value == 0.5) {
+                td.innerHTML = '1/2' + cellProperties.suffix;
+                return
+            }
+        }
+        value = numbro(parseFloat(value)).format(cellProperties.numericFormat);
+        td.innerHTML = value + cellProperties.suffix;
+    } else {
+        td.innerHTML = cellProperties.zero + zerosuffix;
+    }
+}
+
+const dateCol = 0;
+const dayCol = 1;
+const daytypeCol = 2;
+const serviceCol = 3;
+const startCol = 4;
+const endCol = 5;
+const breakCol = 6;
+const workedhoursCol = 7;
+const overtimeCol = 8;
+const payableCol = 9;
+const restdayCol = 10;
+const publicholidayCol = 11;
+const remarksCol = 12;
+const reasonCol = 13;
+const payxCol = 14;
+const carryoverCol = 15;
+const detailsCol = 16;
+
+const timesheetHeaders = [
+    'Date',
+    'Day',
+    'Day type',
+    'Service',
+    'Start',
+    'End',
+    'Break',
+    'Work hs',
+    'Overtime',
+    'Payable',
+    'Restday',
+    'P. holiday',
+    'Remarks',
+    '1/2d Reason',
+    'PayX',
+    'C Over',
+    'Details'
+];
+
+[r, c] = [33, timesheetHeaders.length];
+ChangeManager = Array(r).fill().map(() => Array(c).fill(false));
+
+Handsontable.renderers.registerRenderer('suffixRenderer', suffixRenderer);
+Handsontable.cellTypes.registerCellType('suffixnumeric', {
+    renderer: 'suffixRenderer',
+    editor: Handsontable.editors.NumericEditor
+});
+
+const timesheetColumns = [
+    { readOnly: true }, //date
+    { width: 40, readOnly: true }, //day
+    { width: 128, type: 'dropdown', source: _.values(dayTypes), allowInvalid: false, }, // type
+    { type: 'dropdown', source: _.values(workDayServices), allowInvalid: false, width: 138 }, //service
+    { width: 80, type: 'time', timeFormat: 'h:mm a', correctFormat: true, className: 'required' }, // start
+    { width: 80, type: 'time', timeFormat: 'h:mm a', correctFormat: true, className: 'required' }, //end
+    { readOnly: false, type: 'suffixnumeric', numericFormat: '0[.]0', suffix: ' h', zero: '', className: 'required' }, // break
+    { readOnly: true, type: 'suffixnumeric', numericFormat: '0[.]0', suffix: ' h', zero: '' }, // working hrs
+    { readOnly: true, type: 'suffixnumeric', numericFormat: '0[.]0', suffix: ' h', zero: '' }, // overtime
+    { width: 80, readOnly: true, type: 'suffixnumeric', numericFormat: '0[.]00', suffix: ' d', zero: '', fraction: true }, // payable
+    { readOnly: true, type: 'suffixnumeric', numericFormat: '0[.]0', suffix: ' d', zero: '' }, // rest day
+    { readOnly: true, type: 'suffixnumeric', numericFormat: '0[.]0', suffix: ' d', zero: '' }, // public holiday
+    { readOnly: true }, //remarks
+    //hiden columns
+    {}, //reason
+    { type: 'suffixnumeric', numericFormat: '0[.]00', suffix: 'x', zero: '', zerosuffix: '' }, // PayX
+    { readOnly: true, type: 'suffixnumeric', numericFormat: '0[.]0', suffix: ' h', zero: '' }, // carryover
+    {}
+];
+
+const timesheetSettings = {
+        licenseKey: 'non-commercial-and-evaluation',
+        colHeaders: timesheetHeaders,
+        columns: timesheetColumns,
+        hiddenColumns: { columns: [detailsCol, reasonCol, carryoverCol, restdayCol, publicholidayCol] },
+        beforeChange: function() { spinner(); },
+        afterChange: timesheetChange,
+        tabMoves: moves,
+        enterMoves: moves,
+        width: '100%',
+        height: '768px',
+
+    }
+    // beforeRefreshDimensions() { return false; }
+
+const timesheetContainer = document.getElementById('timesheet');
+timesheet = new Handsontable(timesheetContainer, timesheetSettings);
+
+createSelects();
+
+generateTimeSheet(currentMonth, currentYear);
+
+//string translatios
+$("*").each(function() {
+    var text = $(this).text();
+    if (text in strings) {
+        var re = new RegExp(text, "g");
+        text = text.replace(re, strings[text]);
+        $(this).html(text);
+    }
+});
+
+var tableHeight = $('.htCore').height();
+var boxHeight = tableHeight + 1;
+$('.resultbox').height(boxHeight);
+
+let notChrome = !/Chrome/.test(navigator.userAgent)
+let alertMessage = "Please use Google Chrome to access this site.\nSome key features do not work in other browsers."
+if (notChrome) alert(alertMessage)
+
+$('.string').each(function(index) {
+    var str = $(this)[0].innerHTML;
+    if (str in strings) {
+        str = $(this)[0].innerHTML = strings[str];
+    }
+})
+
 function configCalculations() {
     var data = config.getData();
     var monthly = data[1][1];
@@ -26,6 +169,7 @@ function timesheetChange(changes, source) {
             } else {
                 calculate();
                 applyFormat();
+                updateTotals();
             }
         });
     }
@@ -33,10 +177,9 @@ function timesheetChange(changes, source) {
 
 blockConfigChange = false;
 
-function generateTimeSheet(month, year) {
+function generateTimeSheet(month, year, resday = 'Sun', halfday = 'Sat', renew) {
     var days = getNumOfDays(year, month);
-    timesheet.updateSettings(timesheetSettings);
-    rowChangeTracker = [];
+    var oldData = timesheet.getData();
     if (month < 10) month = "0" + month;
     var monthStr = moment(`${year}-${month}-01`).format('MMM');
     timesheetHeaders[0] = monthStr;
@@ -44,24 +187,32 @@ function generateTimeSheet(month, year) {
     for (var day = 1; day <= days; day++) {
         rowIndex = day - 1;
         weekDay = dayOfTheWeek(year, month, day);
-        dayType = dayTypes['workday'];
+        dayType = dayTypes['payable'];
         service = services['worked'];
+
         if (isHoliday(year, month, day) !== '') {
             dayType = dayTypes['pholiday'];
             service = services['notworked'];
+
             cellSetSource(rowIndex, serviceCol, _.values(restdayServices));
         }
-        if (weekDay === "Sat") {
+        if (weekDay === halfday) {
             dayType = dayTypes['halfday'];
             service = services['worked'];
         }
-        if (weekDay === "Sun") {
-            service = restdayServices['notworked'];
+        if (weekDay === resday) {
+            service = services['notworked'];
             dayType = dayTypes['restday'];
             var cell = timesheet.getCellMeta(rowIndex, serviceCol);
             cell.source = _.values(restdayServices);
         }
-        rowData = [day, weekDay, dayType, service, '', '', 0, 0, 0, 0, 0, 0, '', 'notset', 0, 0]
+        var startVal = '';
+        var endVal = '';
+        if (oldData[rowIndex]) {
+            if (oldData[rowIndex][startCol] !== null) startVal = oldData[rowIndex][startCol];
+            if (oldData[rowIndex][endCol] !== null) endVal = oldData[rowIndex][endCol];
+        }
+        rowData = [day, weekDay, dayType, service, startVal, endVal, 0, 0, 0, 0, 0, 0, '', 'notset', 0, 0];
         data.push(rowData);
         rowChangeTracker[rowIndex] = rowData;
     }
@@ -79,7 +230,7 @@ function calculate() {
         var endVal = rowData[endCol];
         var breakVal = rowData[breakCol];
         var workedhoursVal = rowData[workedhoursCol]
-        var workdayVal = rowData[workdayCol];
+        var payableVal = rowData[payableCol];
         var overtimeVal = rowData[overtimeCol];
         var restdayVal = rowData[restdayCol];
         var publicholidayVal = rowData[publicholidayCol];
@@ -90,11 +241,11 @@ function calculate() {
         var lastcarryoverVal = ((rowIndex > 0) ? data[rowIndex - 1][carryoverCol] : 0);
         var tooltips = [];
         var tooltipsVal = '';
-        var workdayMultiplier = 0.0;
+        var payableMultiplier = 0.0;
         var restdayMultiplier = 0.0;
         var publicholidayMultiplier = 0.0;
         var dayxMultiplier = 0.0;
-        var overtimeMultiplier = overtimeMultiplierBase;
+        var overtimeMultiplier = 1.0;
 
         function resetDataRow() {
             startVal = '';
@@ -104,7 +255,7 @@ function calculate() {
             reasonVal = 'notset';
             if (lastcarryoverVal <= 0) {
                 workedhoursVal = 0;
-                workdayVal = 0;
+                payableVal = 0;
                 overtimeVal = 0
                 restdayVal = 0;
                 pholiday = 0;
@@ -117,17 +268,17 @@ function calculate() {
         }
 
         function getWorkDayVal() {
-            var workdayVal = 1;
+            var payableVal = 1;
             if (workedhoursVal <= 0) return 0;
-            if (daytypeVal === dayTypes['workday']) {
+            if (daytypeVal === dayTypes['payable']) {
                 if (serviceVal == services['worked']) {
                     if (workedhoursVal <= halfDayCutOver) {
-                        workdayVal = reasonMultiplier[reasonVal];
+                        payableVal = reasonMultiplier[reasonVal];
                         tooltips.push(`${bullet} ${strings[reasonTexts[reasonVal]]}`);
                     }
                 }
             }
-            return workdayVal;
+            return payableVal;
         }
 
         function getWorkingHours() {
@@ -155,7 +306,11 @@ function calculate() {
         }
 
         function getOvertimeHours() {
-            var overtimeHours = workedhoursVal - (dayWorkingHours * overtimeMultiplier);
+            if (daytypeVal == dayTypes['halfday']) {
+                var overtimeHours = workedhoursVal - (halfDayCutOver * overtimeMultiplier);
+            } else {
+                var overtimeHours = workedhoursVal - (dayWorkingHours * overtimeMultiplier);
+            }
             if (overtimeHours <= 0) {
                 return 0;
             } else {
@@ -163,31 +318,31 @@ function calculate() {
             }
         }
 
-        if (daytypeVal == dayTypes['workday']) {
-            workdayMultiplier = 1;
+        if (daytypeVal == dayTypes['payable']) {
+            payableMultiplier = 1;
             restdayMultiplier = 0;
             publicholidayMultiplier = 0;
-            dayxMultiplier = workdayMultiplierBase;
+            dayxMultiplier = payableMultiplierBase;
 
         }
         if (daytypeVal == dayTypes['restday']) {
-            workdayMultiplier = 0;
+            payableMultiplier = 0;
             restdayMultiplier = 1;
             publicholidayMultiplier = 0;
             dayxMultiplier = 2;
 
         }
         if (daytypeVal == dayTypes['halfday']) {
-            workdayMultiplier = 0.5;
+            payableMultiplier = 0.5;
             restdayMultiplier = 0;
             publicholidayMultiplier = 0;
             dayxMultiplier = 0.5;
         }
         if (daytypeVal == dayTypes['pholiday']) {
-            workdayMultiplier = 0;
+            payableMultiplier = 2;
             restdayMultiplier = 0;
             publicholidayMultiplier = 1;
-            dayxMultiplier = 1;
+            dayxMultiplier = 2;
 
         }
         if (daytypeVal == dayTypes['noemployment']) {
@@ -199,7 +354,7 @@ function calculate() {
             var hours = getWorkingHours();
             breakVal = hours[2];
             workedhoursVal = hours[0] + lastcarryoverVal;
-            workdayTotal = getWorkDayVal();
+            payableTotal = getWorkDayVal();
             overtimeVal = getOvertimeHours() * overtimeMultiplier;
             carryoverVal = hours[1];
             if (carryoverVal > 0) {
@@ -209,37 +364,43 @@ function calculate() {
 
         if (serviceVal == services['mcfullpay']) {
             resetDataRow();
-            workdayTotal = 1;
+            payableTotal = 1;
         }
 
         if (serviceVal == services['mctwotherds']) {
             resetDataRow();
-            workdayTotal = twothirdMultiplierBase;
+            payableTotal = twothirdMultiplierBase;
             dayxMultiplier = 1;
         }
 
         if (serviceVal == services['noworkavailable']) {
             resetDataRow();
-            workdayTotal = 1;
+            payableTotal = 1;
         }
         if (serviceVal == services['paidleave']) {
             resetDataRow();
-            workdayTotal = 1;
+            payableTotal = 1;
         }
         if (serviceVal == services['qarantine']) {
             resetDataRow();
-            workdayTotal = 1;
+            payableTotal = 1;
         }
         if (serviceVal == services['notworked']) {
             resetDataRow();
-            workdayTotal = 0;
+            if (daytypeVal === dayTypes['pholiday']) {
+                payableTotal = 1;
+                payableMultiplier = 1;
+                dayxMultiplier = 1;
+            } else {
+                payableTotal = 0;
+            }
             dayxVal = 0;
         }
 
-        workdayVal = workdayTotal * workdayMultiplier;
-        restdayVal = workdayTotal * restdayMultiplier;
-        publicholidayVal = workdayTotal * publicholidayMultiplier;
-        dayxVal = workdayTotal * dayxMultiplier;
+        payableVal = payableTotal * payableMultiplier;
+        restdayVal = payableTotal * restdayMultiplier;
+        publicholidayVal = payableTotal * publicholidayMultiplier;
+        dayxVal = payableTotal * dayxMultiplier;
 
         if (lastcarryoverVal > 0) {
             tooltips.push(`${bullet} +${lastcarryoverVal}h (overnight)`)
@@ -259,7 +420,7 @@ function calculate() {
         data[rowIndex][endCol] = endVal;
         data[rowIndex][breakCol] = breakVal;
         data[rowIndex][workedhoursCol] = workedhoursVal;
-        data[rowIndex][workdayCol] = workdayVal;
+        data[rowIndex][payableCol] = payableVal;
         data[rowIndex][overtimeCol] = overtimeVal;
         data[rowIndex][restdayCol] = restdayVal;
         data[rowIndex][publicholidayCol] = publicholidayVal;
@@ -279,7 +440,7 @@ function applyFormat(forceRefresh = false) {
             if (_.isEqual(rowData, rowChangeTracker[rowIndex]) && !forceRefresh) return;
             var daytypeVal = rowData[daytypeCol];
             var serviceVal = rowData[serviceCol];
-            var workdayVal = rowData[workdayCol];
+            var payableVal = rowData[payableCol];
             var reasonVal = rowData[reasonCol];
             var workedhoursVal = rowData[workedhoursCol];
             var remarksVal = rowData[remarksCol];
@@ -292,7 +453,7 @@ function applyFormat(forceRefresh = false) {
             var serviceReadOnly = false;
 
             // dayType conditions 
-            if (daytypeVal === dayTypes['workday']) {
+            if (daytypeVal === dayTypes['payable']) {
                 rowCss = 'worday '
                 inputCss = 'required '
                 serviceSource = workDayServices;
@@ -356,9 +517,9 @@ function applyFormat(forceRefresh = false) {
             }
 
             if (reasonCss !== '') {
-                cellSetClass(rowIndex, [workdayCol], reasonCss + rowCss);
+                cellSetClass(rowIndex, [payableCol], reasonCss + rowCss);
             } else {
-                var cell = timesheet.getCell(rowIndex, workdayCol);
+                var cell = timesheet.getCell(rowIndex, payableCol);
                 if (cell && 'reasonbox' in cell) {
                     cell.reasonbox.destroy();
                     delete cell.reasonbox;
@@ -380,10 +541,60 @@ function applyFormat(forceRefresh = false) {
     timesheet.render();
 }
 
-function setWorkday(row, selected) { // called by the reason dropdown
-    var cell = timesheet.getCell(row, workdayCol);
+function updateTotals() {
+    var workedHours = colSum(workedhoursCol);
+    var overtimeHours = colSum(overtimeCol);
+    var workDays = colSum(payableCol);
+    var restDays = colSum(restdayCol);
+    var pholidays = colSum(publicholidayCol);
+    var isPartialMonth = colGetData(daytypeCol).includes(dayTypes['noemployment']);
+    var basicSalary = $("#monthlysalary").val();
+    var dailyRate = $("#dailyrate").text();
+    var basicPartialSalary = dailyRate * workDays;
+    var nonPaidLeave = colGetData(serviceCol).filter(x => x === workDayServices['nonpaidleave']).length;
+
+    if (isPartialMonth) {
+        var monthType = "Partial";
+    } else {
+        var monthType = "Full";
+    }
+    $('#monthtype').text(monthType);
+    if (!isPartialMonth) {
+        $("#basicsalary").text(basicSalary);
+        $(".mcrow").hide();
+    } else {
+        $("#basicsalary").text(basicPartialSalary.toFixed(2));
+        $(".mcrow").show();
+    }
+
+    $('#overtimecount').text(overtimeHours.toString() + 'h');
+    $('#restdayscount').text(restDays.toString() + 'd');
+    $('#publicholidayscount').text(pholidays.toString() + 'd');
+    $('#nonpayleavecount').text(nonPaidLeave.toString() + 'd');
+}
+
+function updateRates() {
+    var monthlySalary = $("#monthlysalary").val();
+    var daysPerWeek = $("#daysperweek").val();
+    var dailyRate = getDailyPay(monthlySalary, daysPerWeek);
+    var hourlyRate = getHourlyPay(monthlySalary);
+    var overtimeRate = getOvertimePay(monthlySalary);
+    var restdayRate = getRestdayPay(monthlySalary, daysPerWeek);
+    var publicHolidayRate = getPublicholidayPay(monthlySalary, daysPerWeek);
+    $("#dailyrate").text(dailyRate.toFixed(2));
+    $("#hourlyrate").text(hourlyRate.toFixed(2));
+    $("#overtimerate").text(overtimeRate.toFixed(2));
+    $("#restdayrate").text(restdayRate.toFixed(2));
+    $("#publicholidayrate").text(publicHolidayRate.toFixed(2));
+    updateTotals();
+
+
+}
+
+function setPayable(row, selected) { // called by the reason dropdown
+    var cell = timesheet.getCell(row, payableCol);
     cell.reasonbox.close();
-    cellSetValue(row, [workdayCol], reasonMultiplier[selected.value]);
+    cellSetValue(row, [payableCol], reasonMultiplier[selected.value]);
     cellSetValue(row, [reasonCol], selected.value);
     applyFormat();
 }
@@ -452,8 +663,11 @@ function moves(event) {
 
 function updateTimeSheeConfig() {
     confPop.close();
-    var configYear = $("#yearselect")[0].value;
-    var configMonth = $("#monthselect")[0].value;
-    var configRestday = $("#restdayselect")[0].value;
-    var configHalfday = $("#halfdaySelect")[0].value;
+    var configYear = parseInt($(".yearselect")[1].value);
+    var configMonth = parseInt($(".monthselect")[1].value);
+    var configRestday = $(".restdayselect")[1].value;
+    var configHalfday = $(".halfdayselect")[1].value;
+    generateTimeSheet(configMonth, configYear, configRestday, configHalfday);
+    $("#monthyear").text(`${monthsOfTheYear[configMonth]}, ${configYear}`);
+
 }

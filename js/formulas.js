@@ -11,8 +11,8 @@ const restdayMultiplierBase = 2.0;
 const twothirdMultiplierBase = 0.6667;
 const halfdayMultiplierBase = 0.5;
 const publicholidayMultiplierBase = 1.0;
-const workdayMultiplierBase = 1.0;
-const overtimeMultiplierBase = 1.0;
+const payableMultiplierBase = 1.0;
+const overtimeMultiplierBase = 1.5;
 
 Anas = 10;
 
@@ -66,7 +66,7 @@ const configDefaultData = [
 ];
 
 const dayTypes = {
-    workday: 'Work day',
+    payable: 'Work day',
     restday: 'Rest day',
     halfday: 'Half day',
     pholiday: 'P Holiday',
