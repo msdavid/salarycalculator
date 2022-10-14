@@ -101,7 +101,7 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-8">Restday</div>
+                            <div class="col-8">Restday (per day)</div>
                             <div class="col">
                                 <div id="restdayrate" class="comp-normal-number">0.00</div>
                             </div>
@@ -135,7 +135,7 @@
                             <div class="col-6">Overtime</div>
                             <div id="overtimecount" class="col"> 0h </div>
                             <div class="col">
-                                <div id="overtimehrs" class="comp-normal-number">0.00</div>
+                                <div id="overtime" class="comp-normal-number">0.00</div>
                             </div>
                         </div>
                         <div class="row">
@@ -149,14 +149,14 @@
                             <div class="col-6">Public Holidays</div>
                             <div id="publicholidayscount" class="col"> 0d </div>
                             <div class="col">
-                                <div id="pholidays" class="comp-normal-number">0.00</div>
+                                <div id="publicholidays" class="comp-normal-number">0.00</div>
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-6">Non-paid Leave</div>
+                            <div class="col-6">Unpaid Leave</div>
                             <div id="nonpayleavecount" class="col"> 0d </div>
                             <div class="col">
-                                <div id="nonpaidleave" class="comp-normal-number">-0.00</div>
+                                <div id="unpaidleave" class="comp-normal-number">-0.00</div>
                             </div>
                         </div>
                         <div class="mcrow row" style="display: none">
@@ -172,8 +172,8 @@
                             </div>
                             <div class="col"></div>
                             <div class="col">
-                                <div id="restdays">
-                                    <h5>0.00</h5>
+                                <div>
+                                    <h5 id="grandtotal">0.00</h5>
                                 </div>
                             </div>
                         </div>
@@ -191,7 +191,7 @@
         <div style="display: flex; justify-content: space-between;">
             <select onchange="setPayable(rownumber, this)">
                 <option value="notset"></option>
-                <option value="noworkavailable">No work available</option>
+                <option value="noworkavailable">Paid Leave or No work available</option>
                 <option value="unpaidleave">Unpaid leave</option>
             </select>
         </div>

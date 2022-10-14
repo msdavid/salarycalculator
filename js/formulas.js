@@ -53,7 +53,7 @@ const reasonMultiplier = {
 const reasonTexts = {
     noworkavailable: 'no_work_available_remark',
     unpaidleave: 'unpaid_leave_remark',
-    notset: 'reason_not_set_remark'
+    notset: 'reason_not_set_remark',
 }
 
 const configDefaultData = [
@@ -76,10 +76,9 @@ const dayTypes = {
 const workDayServices = {
     worked: 'Worked',
     mcfullpay: 'MC (full pay)',
-    mctwotherds: 'MC (2/3 pay)',
     noworkavailable: 'No work available',
     paidleave: 'Paid leave',
-    nonpaidleave: 'Non-paid Leave',
+    unpaidleave: 'Unpaid Leave',
     qarantine: 'Quarantine / SHN',
 }
 

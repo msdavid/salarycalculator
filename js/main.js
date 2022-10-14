@@ -115,7 +115,6 @@ const timesheetContainer = document.getElementById('timesheet');
 timesheet = new Handsontable(timesheetContainer, timesheetSettings);
 
 createSelects();
-
 generateTimeSheet(currentMonth, currentYear);
 
 //string translatios
@@ -364,14 +363,9 @@ function calculate() {
 
         if (serviceVal == services['mcfullpay']) {
             resetDataRow();
-            payableTotal = 1;
+            payableTotal = 0;
         }
 
-        if (serviceVal == services['mctwotherds']) {
-            resetDataRow();
-            payableTotal = twothirdMultiplierBase;
-            dayxMultiplier = 1;
-        }
 
         if (serviceVal == services['noworkavailable']) {
             resetDataRow();
@@ -387,13 +381,13 @@ function calculate() {
         }
         if (serviceVal == services['notworked']) {
             resetDataRow();
-            if (daytypeVal === dayTypes['pholiday']) {
-                payableTotal = 1;
-                payableMultiplier = 1;
-                dayxMultiplier = 1;
-            } else {
-                payableTotal = 0;
-            }
+            // if (daytypeVal === dayTypes['pholiday']) {
+            //     payableTotal = ;
+            //     payableMultiplier = 1;
+            //     dayxMultiplier = 1;
+            // } else {
+            payableTotal = 0;
+            // }
             dayxVal = 0;
         }
 
@@ -536,41 +530,62 @@ function applyFormat(forceRefresh = false) {
 
             rowChangeTracker[rowIndex] = rowData;
         });
-
     });
     timesheet.render();
 }
 
 function updateTotals() {
-    var workedHours = colSum(workedhoursCol);
+    var basicSalary = parseFloat($("#monthlysalary").val());
+    if (!basicSalary) return;
     var overtimeHours = colSum(overtimeCol);
     var workDays = colSum(payableCol);
     var restDays = colSum(restdayCol);
     var pholidays = colSum(publicholidayCol);
     var isPartialMonth = colGetData(daytypeCol).includes(dayTypes['noemployment']);
-    var basicSalary = $("#monthlysalary").val();
-    var dailyRate = $("#dailyrate").text();
+    var dailyRate = parseFloat($("#dailyrate").text());
     var basicPartialSalary = dailyRate * workDays;
-    var nonPaidLeave = colGetData(serviceCol).filter(x => x === workDayServices['nonpaidleave']).length;
+    var unpaidLeave = colGetData(serviceCol).filter(x => x === workDayServices['unpaidleave']).length;
+    var mcfulldays = colGetData(serviceCol).filter(x => x === workDayServices['mcfullpay']).length;
+    var mcMultiplier = 0;
 
     if (isPartialMonth) {
         var monthType = "Partial";
     } else {
         var monthType = "Full";
     }
+
+    if (isPartialMonth) {
+        basicSalary = basicPartialSalary;
+        mcMultiplier = 1;
+    }
+    $("#basicsalary").text(basicSalary);
     $('#monthtype').text(monthType);
     if (!isPartialMonth) {
-        $("#basicsalary").text(basicSalary);
         $(".mcrow").hide();
     } else {
-        $("#basicsalary").text(basicPartialSalary.toFixed(2));
         $(".mcrow").show();
     }
-
-    $('#overtimecount').text(overtimeHours.toString() + 'h');
-    $('#restdayscount').text(restDays.toString() + 'd');
-    $('#publicholidayscount').text(pholidays.toString() + 'd');
-    $('#nonpayleavecount').text(nonPaidLeave.toString() + 'd');
+    var overtimeRate = parseFloat($("#overtimerate").text());
+    var restdayRate = parseFloat($("#restdayrate").text());
+    var publicHolidayRate = parseFloat($("#publicholidayrate").text());
+    var overtimeAmount = overtimeHours * overtimeRate;
+    var restdayAmmount = restDays * restdayRate;
+    var publicHolidayAmmount = pholidays * publicHolidayRate;
+    var unpaidLeaveAmmount = -(dailyRate * unpaidLeave);
+    var mcAmmount = -(dailyRate * mcfulldays * mcMultiplier);
+    var grandTotal = overtimeAmount + restdayAmmount + publicHolidayAmmount + unpaidLeaveAmmount + mcAmmount + basicSalary;
+    if (grandTotal < 0) grandTotal = 0;
+    $('#overtimecount').text(overtimeHours.toFixed(1).toString() + 'h');
+    $('#overtime').text(overtimeAmount.toFixed(2));
+    $('#restdayscount').text(restDays.toFixed(1).toString() + 'd');
+    $("#restdays").text(restdayAmmount.toFixed(2));
+    $('#publicholidayscount').text(pholidays.toFixed(1).toString() + 'd');
+    $('#publicholidays').text(publicHolidayAmmount.toFixed(2));
+    $('#nonpayleavecount').text(unpaidLeave.toFixed(1).toString() + 'd');
+    $('#unpaidleave').text(unpaidLeaveAmmount.toFixed(2));
+    $('#mccount').text(mcfulldays.toFixed(1).toString() + 'd');
+    $('#mc').text(mcAmmount.toFixed(2));
+    $('#grandtotal').text(grandTotal.toFixed(1));
 }
 
 function updateRates() {
