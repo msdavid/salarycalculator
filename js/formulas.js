@@ -45,7 +45,7 @@ function getPublicholidayPay(monthly, daysPerWeek) {
 
 const reasonMultiplier = {
     noworkavailable: 1,
-    unpaidleave: 0.5,
+    unpaidleave: -0.5,
     notset: 0.5,
 
 }

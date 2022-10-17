@@ -12,12 +12,12 @@ function suffixRenderer(instance, td, row, column, prop, value, cellProperties) 
             return;
         }
         if ('fraction' in cellProperties) {
-            if (value == 0.6667) {
-                td.innerHTML = '2/3' + cellProperties.suffix;
-                return;
-            }
             if (value == 0.5) {
                 td.innerHTML = '1/2' + cellProperties.suffix;
+                return
+            }
+            if (value == -0.5) {
+                td.innerHTML = '-1/2' + cellProperties.suffix;
                 return
             }
         }
@@ -262,6 +262,7 @@ function calculate() {
                 dayxVal = 0;
                 carryoverVal = 0;
                 tooltipsVal = '';
+                payableVal = 0;
             }
 
         }
@@ -375,19 +376,17 @@ function calculate() {
             resetDataRow();
             payableTotal = 1;
         }
+        if (serviceVal == services['unpaidleave']) {
+            resetDataRow();
+            payableTotal = -1;
+        }
         if (serviceVal == services['qarantine']) {
             resetDataRow();
             payableTotal = 1;
         }
         if (serviceVal == services['notworked']) {
             resetDataRow();
-            // if (daytypeVal === dayTypes['pholiday']) {
-            //     payableTotal = ;
-            //     payableMultiplier = 1;
-            //     dayxMultiplier = 1;
-            // } else {
             payableTotal = 0;
-            // }
             dayxVal = 0;
         }
 
@@ -544,7 +543,7 @@ function updateTotals() {
     var isPartialMonth = colGetData(daytypeCol).includes(dayTypes['noemployment']);
     var dailyRate = parseFloat($("#dailyrate").text());
     var basicPartialSalary = dailyRate * workDays;
-    var unpaidLeave = colGetData(serviceCol).filter(x => x === workDayServices['unpaidleave']).length;
+    var unpaidLeave = arrSum(colGetData(payableCol).filter(x => x < 0));
     var mcfulldays = colGetData(serviceCol).filter(x => x === workDayServices['mcfullpay']).length;
     var mcMultiplier = 0;
 
@@ -571,7 +570,7 @@ function updateTotals() {
     var overtimeAmount = overtimeHours * overtimeRate;
     var restdayAmmount = restDays * restdayRate;
     var publicHolidayAmmount = pholidays * publicHolidayRate;
-    var unpaidLeaveAmmount = -(dailyRate * unpaidLeave);
+    var unpaidLeaveAmmount = dailyRate * unpaidLeave;
     var mcAmmount = -(dailyRate * mcfulldays * mcMultiplier);
     var grandTotal = overtimeAmount + restdayAmmount + publicHolidayAmmount + unpaidLeaveAmmount + mcAmmount + basicSalary;
     if (grandTotal < 0) grandTotal = 0;
