@@ -651,17 +651,21 @@ function uploadfile() {
         var content = JSON.parse(fr.result);
         content = JSON.parse(content);
         var configData = content['config'];
+
+        $("#yearselect").val(configData['configYear']);
+        $("#monthselect").val(configData['configMonth']);
+        $("#restdayselect").val(configData['configRestday']);
+        $("#halfdayselect").val(configData['configHalfday']);
+        $("#daysperweek").val(configData['daysPerWeek']);
+        $("#monthlysalary").val(configData['monthlySalary']);
+        updateTimeSheeConfig();
+        $("#monthyear").text(`${monthsOfTheYear[configData['configMonth']]}, ${configData['configYear']}`);
+        updateRates();
         var timesheetData = content['data'];
-        var data = config.getData();
-        data[0][1] = configData['daysPerWeek'];
-        data[1][1] = configData['monthlySalary'];
-        data[2][1] = configData['startingMonth'];
-        data[3][1] = configData['startingYear'];
-        config.updateData(data);
-        configCalculations();
         timesheet.updateData(timesheetData);
         $('#fileloader')[0].value = null;
         applyFormat();
+
     };
 }
 
@@ -675,12 +679,13 @@ function moves(event) {
     if (column === breakCol) { return { row: 1, col: -2 } }
 }
 
+
 function updateTimeSheeConfig() {
     confPop.close();
-    var configYear = parseInt($(".yearselect")[1].value);
-    var configMonth = parseInt($(".monthselect")[1].value);
-    var configRestday = $(".restdayselect")[1].value;
-    var configHalfday = $(".halfdayselect")[1].value;
+    var configYear = parseInt($("#yearselect").val());
+    var configMonth = parseInt($("#monthselect").val());
+    var configRestday = $("#restdayselect").val();
+    var configHalfday = $("#halfdayselect").val();
     generateTimeSheet(configMonth, configYear, configRestday, configHalfday);
     $("#monthyear").text(`${monthsOfTheYear[configMonth]}, ${configYear}`);
 

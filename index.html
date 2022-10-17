@@ -52,7 +52,7 @@
                                 <button id="zoomIn" class="btn btn-sm btn-secondary exportbtn"><i class="bi bi-zoom-in"></i></button>
                                 <button id="loadfile" onclick="loadTimesheet()" class="btn btn-sm btn-secondary exportbtn">Load</button>
                                 <button id="savefile" class="btn btn-sm btn-secondary exportbtn" data-bs-toggle="modal" data-bs-target="#savemodal">Save</button>
-                                <button id="export" class="btn btn-sm btn-secondary exportbtn" data-bs-toggle="modal" data-bs-target="#exportmodal">Export Data</button>
+                                <!-- <button id="export" class="btn btn-sm btn-secondary exportbtn" data-bs-toggle="modal" data-bs-target="#exportmodal">Export Data</button> -->
                             </div>
                         </div>
                     </div>
@@ -207,14 +207,14 @@
                 <div style="display: table-row;">
                     <div style="display: table-cell;font-size:small"> Year </div>
                     <div style="display: table-cell;">
-                        <select class="yearselect" style="width:120px; margin-left:15px">
+                        <select id="tmplyearselect" style="width:120px; margin-left:15px">
                     </select>
                     </div>
                 </div>
                 <div style="display: table-row">
                     <div style="display: table-cell;font-size:small"> Month </div>
                     <div style="display: table-cell;">
-                        <select class="monthselect" style="width:120px; margin-left:15px">
+                        <select id="tmplmonthselect" style="width:120px; margin-left:15px">
 
                     </select>
                     </div>
@@ -222,14 +222,14 @@
                 <div style="display: table-row">
                     <div style="display: table-cell; margin-left:10px; font-size:small"> Rest Day </div>
                     <div style="display: table-cell;">
-                        <select class="restdayselect" style="width:120px; margin-left:15px; background-color: #c9e2fa;">
+                        <select id="tmplrestdayselect" style="width:120px; margin-left:15px; background-color: #c9e2fa;">
                     </select>
                     </div>
                 </div>
                 <div style="display: table-row">
                     <div style="display: table-cell;font-size:small"> Half Day </div>
                     <div style="display: table-cell;">
-                        <select class="halfdayselect" style="width:120px; margin-left:15px; background-color: #e3f2fd;">
+                        <select id="tmplhalfdayselect" style="width:120px; margin-left:15px; background-color: #e3f2fd;">
                     </select>
                     </div>
                 </div>

@@ -93,10 +93,12 @@ const restdayServices = {
 
 function getCfg() {
     var cfg = {
-        daysPerWeek: config.getDataAtCell(0, 1),
-        monthlySalary: config.getDataAtCell(1, 1),
-        startingMonth: config.getDataAtCell(2, 1),
-        startingYear: config.getDataAtCell(3, 1),
+        configYear: parseInt($("#yearselect").val()),
+        configMonth: parseInt($("#monthselect").val()),
+        configRestday: $("#restdayselect").val(),
+        configHalfday: $("#halfdayselect").val(),
+        daysPerWeek: $("#daysperweek").val(),
+        monthlySalary: $("#monthlysalary").val(),
     }
     return cfg;
 }

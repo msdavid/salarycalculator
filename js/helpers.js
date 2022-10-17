@@ -244,22 +244,22 @@ function createSelects(year = currentYear,
     var years = _.range(year - 5, year + 3);
     years.forEach(item => {
         var selected = ((parseInt(item) === year) ? 'selected' : '');
-        $(".yearselect").append(`<option ${selected} value="${item}">${item}</option>\n`);
+        $("#tmplyearselect").append(`<option ${selected} value="${item}">${item}</option>\n`);
     });
     _.keys(monthsOfTheYear).forEach(item => {
         var selected = ((parseInt(item) === month) ? 'selected' : '');
         var option = monthsOfTheYear[item];
-        $(".monthselect").append(`<option ${selected} value="${item}">${option}</option>\n`);
+        $("#tmplmonthselect").append(`<option ${selected} value="${item}">${option}</option>\n`);
     });
     _.keys(daysOfTheWeek).forEach(item => {
         var selected = ((item === resday) ? 'selected' : '');
         var option = daysOfTheWeek[item];
-        $(".restdayselect").append(`<option ${selected} value="${item}">${option}</option>\n`);
+        $("#tmplrestdayselect").append(`<option ${selected} value="${item}">${option}</option>\n`);
     });
     _.keys(daysOfTheWeek).forEach(item => {
         var selected = ((item === halfday) ? 'selected' : '');
         var option = daysOfTheWeek[item];
-        $(".halfdayselect").append(`<option ${selected} value="${item}">${option}</option>\n`);
+        $("#tmplhalfdayselect").append(`<option ${selected} value="${item}">${option}</option>\n`);
     });
 
     var dayTypeEditHtml = $('#confpop')[0].outerHTML;
@@ -268,10 +268,9 @@ function createSelects(year = currentYear,
     }
     confPop = new jBox('Tooltip', {
         attach: $(".confedit"),
-        content: dayTypeEditHtml,
+        content: dayTypeEditHtml.replaceAll('tmpl', ''),
         trigger: 'click',
     });
-
     $("#monthyear").text(`${monthsOfTheYear[currentMonth]}, ${currentYear}`);
 
 }
