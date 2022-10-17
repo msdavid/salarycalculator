@@ -584,7 +584,7 @@ function updateTotals() {
     $('#unpaidleave').text(unpaidLeaveAmmount.toFixed(2));
     $('#mccount').text(mcfulldays.toFixed(1).toString() + 'd');
     $('#mc').text(mcAmmount.toFixed(2));
-    $('#grandtotal').text(grandTotal.toFixed(1));
+    $('#grandtotal').text(numeral(grandTotal).format('0,00[.]0'));
 }
 
 function updateRates() {
